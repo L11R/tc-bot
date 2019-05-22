@@ -118,6 +118,11 @@ func main() {
 				handleError(err)
 			}
 			continue
+		case "cancel":
+			if err := h.Cancel(update); err != nil {
+				handleError(err)
+			}
+			continue
 		default:
 			if strings.HasPrefix(update.Message.Text, "/balance_") {
 				if err := h.Balance(update); err != nil {

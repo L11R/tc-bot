@@ -353,6 +353,49 @@ func (h *Handler) RemoveCard(update tgbotapi.Update) error {
 	return nil
 }
 
+func (h *Handler) Cancel(update tgbotapi.Update) error {
+	user, err := h.DB.GetUser(&model.User{
+		TelegramID: update.Message.From.ID,
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return tool.NewHRError(
+				"Hm. Seems like I cannot find record about you. Try again by clicking /start!",
+				errors.Wrap(err, "user somehow didn't click /start"),
+			)
+		} else {
+			return tool.NewHRError(
+				"Sorry, my database seems to be down. Come later!",
+				errors.Wrap(err, "cannot get user"),
+			)
+		}
+	}
+
+	if err := h.DB.UpdateState(&model.User{
+		ID: user.ID,
+		State: sql.NullInt64{
+			Int64: 0,
+			Valid: true,
+		},
+	}); err != nil {
+		return tool.NewHRError(
+			"Sorry, my database seems to be down. Come later!",
+			errors.Wrap(err, "cannot update state"),
+		)
+	}
+
+	msg := tgbotapi.NewMessage(
+		update.Message.Chat.ID,
+		"Operation canceled.",
+	)
+
+	if _, err := h.Telegram.Send(msg); err != nil {
+		return errors.Wrap(err, "cannot send message")
+	}
+
+	return nil
+}
+
 func (h *Handler) Default(update tgbotapi.Update) error {
 	user, err := h.DB.GetUser(&model.User{
 		TelegramID: update.Message.From.ID,
