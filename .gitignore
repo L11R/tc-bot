@@ -1,0 +1,7 @@
+# Golang
+.idea
+
+# Binary and config
+server
+server.exe
+config.yml
