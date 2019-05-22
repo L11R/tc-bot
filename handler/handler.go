@@ -199,6 +199,19 @@ func (h *Handler) Balance(update tgbotapi.Update) error {
 		}
 	}
 
+	if err := h.DB.UpdateCurrentCardID(&model.User{
+		ID: user.ID,
+		CurrentCardID: sql.NullInt64{
+			Int64: int64(card.ID),
+			Valid: true,
+		},
+	}); err != nil {
+		return tool.NewHRError(
+			"Sorry, my database seems to be down. Come later!",
+			errors.Wrap(err, "cannot update current_card_id"),
+		)
+	}
+
 	form, err := tool.GetForm()
 	if err != nil {
 		return tool.NewHRError(

@@ -82,70 +82,72 @@ func main() {
 
 	h := handler.NewHandler(database.NewInstance(db), bot, logger, conf)
 	for update := range updates {
-		if update.Message == nil { // ignore any non-Message Updates
-			continue
-		}
+		go func(u tgbotapi.Update) {
+			if u.Message == nil { // ignore any non-Message Updates
+				return
+			}
 
-		handleError := func(err error) {
-			// Log error
-			h.Logger.Error(err)
+			handleError := func(err error) {
+				// Log error
+				h.Logger.Error(err)
 
-			// Send human readable representation of error to crusader to let him know
-			if hrerr, ok := err.(*tool.HRError); ok {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, hrerr.Human())
-				_, err := h.Telegram.Send(msg)
-				if err != nil {
-					h.Logger.Error(errors.Wrap(err, "cannot send message with human readable error"))
+				// Send human readable representation of error to crusader to let him know
+				if hrerr, ok := err.(*tool.HRError); ok {
+					msg := tgbotapi.NewMessage(u.Message.Chat.ID, hrerr.Human())
+					_, err := h.Telegram.Send(msg)
+					if err != nil {
+						h.Logger.Error(errors.Wrap(err, "cannot send message with human readable error"))
+					}
+				} else {
+					// ... do nothing? Unreadable error useless for people
 				}
-			} else {
-				// ... do nothing? Unreadable error useless for people
 			}
-		}
 
-		switch update.Message.Command() {
-		case "start":
-			if err := h.Start(update); err != nil {
-				handleError(err)
-			}
-			continue
-		case "addcard":
-			if err := h.AddCard(update); err != nil {
-				handleError(err)
-			}
-			continue
-		case "cards":
-			if err := h.Cards(update); err != nil {
-				handleError(err)
-			}
-			continue
-		case "cancel":
-			if err := h.Cancel(update); err != nil {
-				handleError(err)
-			}
-			continue
-		default:
-			if strings.HasPrefix(update.Message.Text, "/balance_") {
-				if err := h.Balance(update); err != nil {
+			switch u.Message.Command() {
+			case "start":
+				if err := h.Start(u); err != nil {
 					handleError(err)
 				}
-				continue
-			}
-			if strings.HasPrefix(update.Message.Text, "/remove_") {
-				if err := h.RemoveCardAttention(update); err != nil {
+				return
+			case "addcard":
+				if err := h.AddCard(u); err != nil {
 					handleError(err)
 				}
-				continue
-			}
-			if strings.HasPrefix(update.Message.Text, "/rm_confirm_") {
-				if err := h.RemoveCard(update); err != nil {
+				return
+			case "cards":
+				if err := h.Cards(u); err != nil {
 					handleError(err)
 				}
-				continue
+				return
+			case "cancel":
+				if err := h.Cancel(u); err != nil {
+					handleError(err)
+				}
+				return
+			default:
+				if strings.HasPrefix(u.Message.Text, "/balance_") {
+					if err := h.Balance(u); err != nil {
+						handleError(err)
+					}
+					return
+				}
+				if strings.HasPrefix(u.Message.Text, "/remove_") {
+					if err := h.RemoveCardAttention(u); err != nil {
+						handleError(err)
+					}
+					return
+				}
+				if strings.HasPrefix(u.Message.Text, "/rm_confirm_") {
+					if err := h.RemoveCard(u); err != nil {
+						handleError(err)
+					}
+					return
+				}
+				if err := h.Default(u); err != nil {
+					handleError(err)
+				}
+				return
 			}
-			if err := h.Default(update); err != nil {
-				handleError(err)
-			}
-			continue
-		}
+		}(update)
 	}
 }

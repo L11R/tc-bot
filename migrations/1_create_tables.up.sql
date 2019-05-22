@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS cards
 (
     id      BIGSERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-    number  BIGINT UNIQUE NOT NULL,
+    number  BIGINT NOT NULL,
+    UNIQUE (user_id, number),
     created TIMESTAMP DEFAULT now()
 );
 
