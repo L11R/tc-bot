@@ -4,11 +4,11 @@ CREATE EXTENSION IF NOT EXISTS moddatetime;
 
 CREATE TABLE IF NOT EXISTS users
 (
-    id              SERIAL PRIMARY KEY,
-    telegram_id     INTEGER UNIQUE NOT NULL,
+    id              BIGSERIAL PRIMARY KEY,
+    telegram_id     BIGSERIAL UNIQUE NOT NULL,
     state           INTEGER,
-    current_card_id INTEGER,
-    current_form_id INTEGER,
+    current_card_id BIGINT,
+    current_form_id BIGINT,
     created         TIMESTAMP DEFAULT now(),
     updated         TIMESTAMP
 );
@@ -21,15 +21,15 @@ EXECUTE PROCEDURE moddatetime(updated);
 
 CREATE TABLE IF NOT EXISTS cards
 (
-    id      SERIAL PRIMARY KEY,
+    id      BIGSERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-    number  INTEGER UNIQUE NOT NULL,
+    number  BIGINT UNIQUE NOT NULL,
     created TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS forms
 (
-    id               SERIAL PRIMARY KEY,
+    id               BIGSERIAL PRIMARY KEY,
     card_id          INTEGER REFERENCES cards ON UPDATE CASCADE ON DELETE CASCADE,
     view_state       text NOT NULL,
     event_validation text NOT NULL,

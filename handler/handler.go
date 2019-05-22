@@ -169,7 +169,7 @@ func (h *Handler) Balance(update tgbotapi.Update) error {
 	if len(update.Message.Text) < strings.LastIndex(update.Message.Text, "_")+2 {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.New("there is no card_id"),
+			errors.New("there is no card number"),
 		)
 	}
 
@@ -177,7 +177,7 @@ func (h *Handler) Balance(update tgbotapi.Update) error {
 	if err != nil {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.Wrap(err, "cannot convert into int"),
+			errors.Wrap(err, "cannot convert card number into int"),
 		)
 	}
 
@@ -226,7 +226,7 @@ func (h *Handler) Balance(update tgbotapi.Update) error {
 	}); err != nil {
 		return tool.NewHRError(
 			"Sorry, my database seems to be down. Come later!",
-			errors.Wrap(err, "cannot update current_card_id"),
+			errors.Wrap(err, "cannot update current_form_id"),
 		)
 	}
 
@@ -274,7 +274,7 @@ func (h *Handler) RemoveCardAttention(update tgbotapi.Update) error {
 	if len(update.Message.Text) < strings.LastIndex(update.Message.Text, "_")+2 {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.New("there is no card_id"),
+			errors.New("there is no card number"),
 		)
 	}
 
@@ -282,7 +282,7 @@ func (h *Handler) RemoveCardAttention(update tgbotapi.Update) error {
 	if err != nil {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.Wrap(err, "cannot convert into int"),
+			errors.Wrap(err, "cannot convert card number into int"),
 		)
 	}
 
@@ -319,7 +319,7 @@ func (h *Handler) RemoveCard(update tgbotapi.Update) error {
 	if len(update.Message.Text) < strings.LastIndex(update.Message.Text, "_")+2 {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.New("there is no card_id"),
+			errors.New("there is no card number"),
 		)
 	}
 
@@ -327,7 +327,7 @@ func (h *Handler) RemoveCard(update tgbotapi.Update) error {
 	if err != nil {
 		return tool.NewHRError(
 			"Incorrect command arguments.",
-			errors.Wrap(err, "cannot convert into int"),
+			errors.Wrap(err, "cannot convert card number into int"),
 		)
 	}
 
