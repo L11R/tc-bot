@@ -129,7 +129,7 @@ func (h *Handler) Cards(update tgbotapi.Update) error {
 	text := "<b>Your cards:</b>\n"
 	if len(cards) > 0 {
 		for _, c := range cards {
-			text += fmt.Sprintf("%d: /balance_%d /remove_%d\n", c.Number, c.ID, c.ID)
+			text += fmt.Sprintf("%010d: /balance_%d /remove_%d\n", c.Number, c.ID, c.ID)
 		}
 	} else {
 		text += "empty"
@@ -265,17 +265,22 @@ func (h *Handler) Balance(update tgbotapi.Update) error {
 	}
 	defer resp.Body.Close()
 
-	msg := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileReader{
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Wait, captcha is sending...")
+	if _, err := h.Telegram.Send(msg); err != nil {
+		return errors.Wrap(err, "cannot send message")
+	}
+
+	captcha := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileReader{
 		Name:   "captcha.jpg",
 		Reader: resp.Body,
 		Size:   -1,
 	})
-	msg.Caption = "Enter captcha:"
+	captcha.Caption = "Enter captcha:"
 
 	// I don't know fucking why, but without timer we are getting "incorrect code" error
 	select {
 	case <-time.After(time.Second * 3):
-		if _, err := h.Telegram.Send(msg); err != nil {
+		if _, err := h.Telegram.Send(captcha); err != nil {
 			return errors.Wrap(err, "cannot send message")
 		}
 	}
@@ -534,17 +539,22 @@ func (h *Handler) Default(update tgbotapi.Update) error {
 		}
 		defer resp.Body.Close()
 
-		msg := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileReader{
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Wait, captcha is sending...")
+		if _, err := h.Telegram.Send(msg); err != nil {
+			return errors.Wrap(err, "cannot send message")
+		}
+
+		captcha := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileReader{
 			Name:   "captcha.jpg",
 			Reader: resp.Body,
 			Size:   -1,
 		})
-		msg.Caption = "Enter captcha:"
+		captcha.Caption = "Enter captcha:"
 
 		// I don't know fucking why, but without timer we are getting "incorrect code" error
 		select {
 		case <-time.After(time.Second * 3):
-			if _, err := h.Telegram.Send(msg); err != nil {
+			if _, err := h.Telegram.Send(captcha); err != nil {
 				return errors.Wrap(err, "cannot send message")
 			}
 		}
