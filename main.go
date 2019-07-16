@@ -91,7 +91,7 @@ func main() {
 				// Log error
 				h.Logger.Error(err)
 
-				// Send human readable representation of error to crusader to let him know
+				// Send human readable representation of error to user to let him know
 				if hrerr, ok := err.(*tool.HRError); ok {
 					msg := tgbotapi.NewMessage(u.Message.Chat.ID, hrerr.Human())
 					_, err := h.Telegram.Send(msg)
